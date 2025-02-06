@@ -76,9 +76,9 @@ void MX_OCTOSPI1_Init(void);
 /* Flash commands */
 #define OCTAL_IO_READ_CMD           0xEC13
 #define OCTAL_PAGE_PROG_CMD         0x12ED
-//#define OCTAL_READ_STATUS_REG_CMD   0x05FA
-//#define OCTAL_SECTOR_ERASE_CMD      0x21DE
-//#define OCTAL_WRITE_ENABLE_CMD      0x06F9
+#define OCTAL_READ_STATUS_REG_CMD   0x05FA
+#define OCTAL_SECTOR_ERASE_CMD      0x21DE
+#define OCTAL_WRITE_ENABLE_CMD      0x06F9
 #define READ_STATUS_REG_CMD         0x05
 #define WRITE_CFG_REG_2_CMD         0x72
 #define WRITE_ENABLE_CMD            0x06

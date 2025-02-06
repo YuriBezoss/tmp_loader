@@ -56,9 +56,20 @@ void SystemClock_Config(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-#define SECTORS_COUNT 100
+#define SECTORS_COUNT 1
 
 uint8_t buffer_test[MEMORY_SECTOR_SIZE];
+
+#define LED2_GPIO_PORT                   GPIOI
+#define LED2_GPIO_CLK_ENABLE()           __HAL_RCC_GPIOI_CLK_ENABLE()
+#define LED2_GPIO_CLK_DISABLE()          __HAL_RCC_GPIOI_CLK_DISABLE()
+#define LED2_PIN                         GPIO_PIN_8
+
+void BSP_LED_On()
+{
+    HAL_GPIO_WritePin(LED2_GPIO_PORT, (uint16_t)LED2_PIN, GPIO_PIN_RESET);
+}
+
 /* USER CODE END 0 */
 
 /**
@@ -70,6 +81,7 @@ int main(void)
 
   /* USER CODE BEGIN 1 */
     uint32_t var = 0;
+    GPIO_InitTypeDef  gpio_init_structure;
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -93,24 +105,37 @@ int main(void)
   MX_ICACHE_Init();
   MX_OCTOSPI1_Init();
   /* USER CODE BEGIN 2 */
+  LED2_GPIO_CLK_ENABLE();
+  /* Configure the GPIO_LED pin */
+      gpio_init_structure.Mode = GPIO_MODE_OUTPUT_PP;
+      gpio_init_structure.Pull = GPIO_NOPULL;
+      gpio_init_structure.Speed = GPIO_SPEED_FREQ_HIGH;
+      gpio_init_structure.Pin = LED2_PIN;
+      HAL_GPIO_Init(LED2_GPIO_PORT, &gpio_init_structure);
+      HAL_GPIO_WritePin(LED2_GPIO_PORT, (uint16_t)LED2_PIN, GPIO_PIN_SET);
+
   CSP_OCTOSPI_Init();
       for (var = 0; var < MEMORY_SECTOR_SIZE; var++) {
           buffer_test[var] = (var & 0xFF);
       }
       for (var = 0; var < SECTORS_COUNT; var++) {
           if (CSP_OSPI_EraseSector(var * MEMORY_SECTOR_SIZE, (var + 1) * MEMORY_SECTOR_SIZE - 1) != HAL_OK) {
-              while (1) {}
+        	  BSP_LED_On();
+        	  while (1) {}
           }
           if (CSP_OSPI_WriteMemory(buffer_test, var * MEMORY_SECTOR_SIZE, sizeof(buffer_test)) != HAL_OK) {
-              while (1) {}
+        	  BSP_LED_On();
+        	  while (1) {}
           }
       }
       if (CSP_OSPI_EnableMemoryMappedMode() != HAL_OK) {
-          while (1) {}
+    	  BSP_LED_On();
+    	  while (1) {}
       }
       for (var = 0; var < SECTORS_COUNT; var++) {
           if (memcmp(buffer_test, (uint8_t*) (0x90000000 + var * MEMORY_SECTOR_SIZE), MEMORY_SECTOR_SIZE) != HAL_OK) {
-              while (1) {}
+        	  BSP_LED_On();
+        	  while (1) {}
           }
       }
   /* USER CODE END 2 */
